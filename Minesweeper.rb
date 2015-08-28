@@ -46,27 +46,31 @@ class Minesweeper
       x,y = [rand(width), rand(height)]
       tile = grid[x][y]
       tile.bomb = true
-      tile.position = [x,y]
-
     end
-
-
+    grid.each_index do |row|
+      grid[row].each_index do |col|
+        grid[row][col].position = [row,col]
+      end
+    end
   end
+
+
+
 
   def display
     grid.each_index do |row|
       grid[row].each_index do |tile|
-        case grid[row][tile].revealed
-        when grid[row][tile].bomb
-          print "*"
-        when grid[row][tile].flagged
-          print "P"
-        when
-          print adjacent_bombs(grid[row][tile])
+        if grid[row][tile].revealed
+          if grid[row][tile].bomb
+            print "*"
+          elsif grid[row][tile].flagged
+            print "P"
+          else
+            print adjacent_bombs(grid[row][tile].position)
+          end
+        else
+          print "o"
         end
-
-         print "o" unless grid[row][tile].revealed
-
       end
       puts
     end
@@ -76,7 +80,8 @@ class Minesweeper
     num_bombs = 0
 
     CHECK.each do |el|
-      num_bombs += 1 if grid[pos[0 + el[0]]][1 + el[1]].bomb
+      num_bombs += 1 if grid[pos[0] + el[0]] [pos[1] + el[1]].bomb
+
     end
 
     num_bombs
