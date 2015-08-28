@@ -33,7 +33,7 @@ class Minesweeper
   def reveal(pos)
     x, y = pos
     raise "Game Over!" if grid[x][y].bomb
-    grid[x][y].revealed = true
+    grid[x][y].revealed = true unless grid[x][y].flagged
   end
 
   def flag(pos)
@@ -43,7 +43,11 @@ class Minesweeper
   def populate
 
     bombs.times do
-      grid[rand(width)][rand(height)].bomb = true
+      x,y = [rand(width), rand(height)]
+      tile = grid[x][y]
+      tile.bomb = true
+      tile.position = [x,y]
+
     end
 
 
@@ -52,11 +56,17 @@ class Minesweeper
   def display
     grid.each_index do |row|
       grid[row].each_index do |tile|
-        if grid[row][tile].bomb
+        case grid[row][tile].revealed
+        when grid[row][tile].bomb
           print "*"
-        else
-          print "o"
+        when grid[row][tile].flagged
+          print "P"
+        when
+          print adjacent_bombs(grid[row][tile])
         end
+
+         print "o" unless grid[row][tile].revealed
+
       end
       puts
     end
@@ -71,15 +81,31 @@ class Minesweeper
 
     num_bombs
   end
-end
+
+  def click(pos)
+    reveal(pos)
+     if adjacent_bombs(pos) == 0
+       cands = [self]
+       until cands.empty?
+         CHECK.each do |el|
+           cands.shift
+           tile = grid[pos[0 + el[0]]][1 + el[1]]
+           cands.push(tile) unless tile.bomb
+           reveal(tile.position) unless tile.flagged
+         end
+       end
+     end
+   end
+ end
 
 class Tile
-  attr_accessor :bomb, :revealed, :flagged, :adj_bombs
+  attr_accessor :bomb, :revealed, :flagged, :adj_bombs, :position
 
-  def initialize(bomb = false, revealed = false, flagged = false, adj_bombs = 0)
+  def initialize(bomb = false, revealed = false, flagged = false, adj_bombs = 0, position = [0,0])
     @bomb = bomb
     @revealed = revealed
     @flagged = flagged
     @adj_bombs = adj_bombs
+    @position = position
   end
 end
