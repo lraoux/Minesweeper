@@ -1,6 +1,8 @@
-class Minesweeper
+require 'byebug'
 
+class Minesweeper
   CHECK = [[-1,0], [-1,-1], [-1,1], [0,1], [0,-1], [1,-1], [1,0], [1,1]]
+
   attr_accessor :height, :width, :bombs, :grid
 
   def initialize(diff)
@@ -24,15 +26,14 @@ class Minesweeper
       @bombs = 99
     end
 
-    @grid = Array.new(height) { Array.new(width) { Tile.new } }
+    @grid = Array.new(width) { Array.new(height) { Tile.new } }
     populate
   end
 
   def reveal(pos)
-    x,y = pos
+    x, y = pos
     raise "Game Over!" if grid[x][y].bomb
     grid[x][y].revealed = true
-
   end
 
   def flag(pos)
@@ -40,6 +41,7 @@ class Minesweeper
   end
 
   def populate
+
     bombs.times do
       grid[rand(width)][rand(height)].bomb = true
     end
@@ -47,21 +49,28 @@ class Minesweeper
 
   end
 
-  def adjacent_bombs(pos)
+  def display
+    grid.each_index do |row|
+      grid[row].each_index do |tile|
+        if grid[row][tile].bomb
+          print "*"
+        else
+          print "o"
+        end
+      end
+      puts
+    end
+  end
 
+  def adjacent_bombs(pos)
     num_bombs = 0
 
     CHECK.each do |el|
-      num_bombs += 1 if grid[pos[0 + el[0]][1 + el[1]]].bomb
+      num_bombs += 1 if grid[pos[0 + el[0]]][1 + el[1]].bomb
     end
 
     num_bombs
   end
-
-
-
-
-
 end
 
 class Tile
